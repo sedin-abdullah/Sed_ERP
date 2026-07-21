@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * SedERP design tokens — replicated from SedECom. Raw HSL channels so
+ * hsl(var(--token) / <alpha-value>) opacity utilities + theming work.
+ * Dark is the primary look (html.dark set in index.html).
+ */
+@layer base {
+  :root {
+    --brand-50: 222 62% 97%;
+    --brand-100: 222 56% 93%;
+    --brand-200: 222 52% 85%;
+    --brand-300: 222 46% 73%;
+    --brand-400: 222 42% 58%;
+    --brand-500: 222 47% 42%;
+    --brand-600: 222 52% 34%;
+    --brand-700: 223 56% 27%;
+    --brand-800: 224 59% 19%;
+    --brand-900: 225 61% 13%;
+    --brand-950: 226 65% 8%;
+    --accent-50: 174 62% 96%;
+    --accent-100: 174 56% 89%;
+    --accent-200: 174 50% 78%;
+    --accent-300: 174 46% 63%;
+    --accent-400: 174 55% 48%;
+    --accent-500: 174 68% 38%;
+    --accent-600: 174 72% 30%;
+    --accent-700: 174 74% 24%;
+    --accent-800: 174 76% 18%;
+    --accent-900: 174 78% 13%;
+    --accent-950: 174 80% 8%;
+    --gold-300: 43 96% 76%;
+    --gold-400: 43 96% 62%;
+    --gold-500: 38 92% 50%;
+    --gold-600: 32 88% 44%;
+    --success: 152 60% 36%;
+    --warning: 38 92% 50%;
+    --danger: 356 72% 50%;
+    --info: 206 80% 48%;
+    --background: 0 0% 100%;
+    --surface: 0 0% 100%;
+    --surface-2: 220 30% 98%;
+    --foreground: 224 40% 10%;
+    --muted: 220 20% 95%;
+    --muted-foreground: 222 15% 42%;
+    --border: 220 20% 90%;
+    --ring: 222 47% 42%;
+    --shadow-color: 222 40% 20%;
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(15, 23, 42, 0.08);
+  }
+
+  .dark {
+    --brand-50: 243 45% 16%;
+    --brand-100: 243 45% 22%;
+    --brand-200: 244 46% 30%;
+    --brand-300: 245 55% 45%;
+    --brand-400: 243 82% 68%;
+    --brand-500: 243 75% 62%;
+    --brand-600: 245 72% 66%;
+    --brand-700: 250 90% 82%;
+    --brand-800: 255 92% 88%;
+    --brand-900: 258 94% 93%;
+    --brand-950: 258 96% 97%;
+    --accent-50: 200 60% 14%;
+    --accent-100: 199 62% 20%;
+    --accent-200: 197 64% 28%;
+    --accent-300: 190 78% 52%;
+    --accent-400: 187 85% 58%;
+    --accent-500: 187 85% 53%;
+    --accent-600: 200 88% 56%;
+    --accent-700: 217 91% 68%;
+    --accent-800: 217 92% 80%;
+    --accent-900: 217 94% 90%;
+    --accent-950: 217 96% 96%;
+    --gold-300: 43 90% 68%;
+    --gold-400: 43 94% 58%;
+    --gold-500: 38 90% 52%;
+    --gold-600: 32 86% 46%;
+    --success: 160 84% 45%;
+    --warning: 38 92% 56%;
+    --danger: 0 84% 62%;
+    --info: 217 91% 60%;
+    --background: 226 60% 5%;
+    --surface: 222 39% 11%;
+    --surface-2: 222 33% 15%;
+    --foreground: 0 0% 100%;
+    --muted: 222 30% 17%;
+    --muted-foreground: 215 20% 65%;
+    --border: 215 22% 26%;
+    --ring: 243 75% 62%;
+    --shadow-color: 226 71% 2%;
+    --glass-bg: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Premium dark backdrop: near-black navy gradient + two drifting glow blobs. */
+  .dark body {
+    background:
+      radial-gradient(1200px 600px at 15% -10%, hsl(243 75% 20% / 0.35), transparent 60%),
+      radial-gradient(1000px 600px at 100% 10%, hsl(187 80% 24% / 0.22), transparent 55%),
+      linear-gradient(180deg, #030712 0%, #0b1120 48%, #111827 100%);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight text-foreground;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
