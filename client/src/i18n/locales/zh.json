@@ -1,0 +1,33 @@
+{
+  "nav": { "home": "首页", "iot": "SedIoT", "service": "SedService", "signIn": "登录", "signOut": "退出登录" },
+  "home": {
+    "badge": "工业运营平台",
+    "title": "一个平台，管理您的工厂与现场服务",
+    "subtitle": "使用 SedIoT 实时监控每一台设备，并通过 SedService 端到端地运营您的服务市场。",
+    "iotDesc": "实时工厂监控——实时传感器、关键指标、告警与报表。",
+    "serviceDesc": "现场服务市场——请求、报价、技师与工单。",
+    "open": "打开"
+  },
+  "login": {
+    "title": "登录 SedERP",
+    "subtitle": "使用下方演示账户或您的凭据。",
+    "email": "邮箱",
+    "password": "密码",
+    "submit": "登录",
+    "demo": "演示账户",
+    "invalid": "邮箱或密码无效"
+  },
+  "iot": {
+    "live": "实时",
+    "connecting": "连接中…",
+    "nav": {
+      "dashboard": "仪表盘", "machines": "设备", "alerts": "告警", "industries": "行业",
+      "process": "工艺技术", "services": "服务", "reports": "报表", "portal": "门户"
+    }
+  },
+  "service": { "user": "用户", "admin": "管理员" },
+  "common": {
+    "save": "保存", "cancel": "取消", "submit": "提交", "edit": "编辑", "add": "添加",
+    "delete": "删除", "close": "关闭", "loading": "加载中…", "all": "全部", "language": "语言"
+  }
+}

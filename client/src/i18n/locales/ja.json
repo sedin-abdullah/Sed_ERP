@@ -1,0 +1,33 @@
+{
+  "nav": { "home": "ホーム", "iot": "SedIoT", "service": "SedService", "signIn": "ログイン", "signOut": "ログアウト" },
+  "home": {
+    "badge": "産業オペレーションプラットフォーム",
+    "title": "工場とフィールドサービスを一つのプラットフォームで",
+    "subtitle": "SedIoT ですべての機械をリアルタイムに監視し、SedService でサービスマーケットプレイスを端から端まで運用します。",
+    "iotDesc": "リアルタイム工場監視 — ライブセンサー、KPI、アラート、レポート。",
+    "serviceDesc": "フィールドサービスマーケットプレイス — 依頼、見積、技術者、ジョブ。",
+    "open": "開く"
+  },
+  "login": {
+    "title": "SedERP にログイン",
+    "subtitle": "下のデモアカウント、またはご自身の認証情報をご利用ください。",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "submit": "ログイン",
+    "demo": "デモアカウント",
+    "invalid": "メールアドレスまたはパスワードが無効です"
+  },
+  "iot": {
+    "live": "ライブ",
+    "connecting": "接続中…",
+    "nav": {
+      "dashboard": "ダッシュボード", "machines": "機械", "alerts": "アラート", "industries": "業界",
+      "process": "プロセス技術", "services": "サービス", "reports": "レポート", "portal": "ポータル"
+    }
+  },
+  "service": { "user": "ユーザー", "admin": "管理者" },
+  "common": {
+    "save": "保存", "cancel": "キャンセル", "submit": "送信", "edit": "編集", "add": "追加",
+    "delete": "削除", "close": "閉じる", "loading": "読み込み中…", "all": "すべて", "language": "言語"
+  }
+}

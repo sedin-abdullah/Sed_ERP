@@ -1,0 +1,33 @@
+{
+  "nav": { "home": "Start", "iot": "SedIoT", "service": "SedService", "signIn": "Anmelden", "signOut": "Abmelden" },
+  "home": {
+    "badge": "Plattform für industrielle Abläufe",
+    "title": "Eine Plattform für Ihre Anlage und Ihren Außendienst",
+    "subtitle": "Überwachen Sie jede Maschine in Echtzeit mit SedIoT und betreiben Sie Ihren Service-Marktplatz durchgängig mit SedService.",
+    "iotDesc": "Echtzeit-Anlagenüberwachung — Live-Sensoren, KPIs, Alarme und Berichte.",
+    "serviceDesc": "Außendienst-Marktplatz — Anfragen, Angebote, Techniker und Aufträge.",
+    "open": "Öffnen"
+  },
+  "login": {
+    "title": "Bei SedERP anmelden",
+    "subtitle": "Verwenden Sie ein Demokonto oder Ihre Zugangsdaten.",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "submit": "Anmelden",
+    "demo": "Demokonten",
+    "invalid": "Ungültige E-Mail oder Passwort"
+  },
+  "iot": {
+    "live": "Live",
+    "connecting": "Verbinden…",
+    "nav": {
+      "dashboard": "Übersicht", "machines": "Maschinen", "alerts": "Alarme", "industries": "Branchen",
+      "process": "Verfahrenstechnik", "services": "Dienstleistungen", "reports": "Berichte", "portal": "Portal"
+    }
+  },
+  "service": { "user": "Benutzer", "admin": "Administrator" },
+  "common": {
+    "save": "Speichern", "cancel": "Abbrechen", "submit": "Senden", "edit": "Bearbeiten", "add": "Hinzufügen",
+    "delete": "Löschen", "close": "Schließen", "loading": "Wird geladen…", "all": "Alle", "language": "Sprache"
+  }
+}

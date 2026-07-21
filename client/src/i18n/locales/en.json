@@ -1,0 +1,33 @@
+{
+  "nav": { "home": "Home", "iot": "SedIoT", "service": "SedService", "signIn": "Sign in", "signOut": "Sign out" },
+  "home": {
+    "badge": "Industrial Operations Platform",
+    "title": "One platform for your plant and your field service",
+    "subtitle": "Monitor every machine in real time with SedIoT, and run your service marketplace end to end with SedService.",
+    "iotDesc": "Real-time plant monitoring — live sensors, KPIs, alerts and reports.",
+    "serviceDesc": "Field-service marketplace — requests, quotes, technicians and jobs.",
+    "open": "Open"
+  },
+  "login": {
+    "title": "Sign in to SedERP",
+    "subtitle": "Use a demo account below or your credentials.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "demo": "Demo accounts",
+    "invalid": "Invalid email or password"
+  },
+  "iot": {
+    "live": "Live",
+    "connecting": "Connecting…",
+    "nav": {
+      "dashboard": "Dashboard", "machines": "Machines", "alerts": "Alerts", "industries": "Industries",
+      "process": "Process Technologies", "services": "Services", "reports": "Reports", "portal": "Portal"
+    }
+  },
+  "service": { "user": "User", "admin": "Admin" },
+  "common": {
+    "save": "Save", "cancel": "Cancel", "submit": "Submit", "edit": "Edit", "add": "Add",
+    "delete": "Delete", "close": "Close", "loading": "Loading…", "all": "All", "language": "Language"
+  }
+}

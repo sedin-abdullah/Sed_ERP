@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api, getApiError } from '@/lib/api';
 import { useAuthStore, type AuthUser } from '@/store/authStore';
 import { refreshSocketAuth } from '@/socket/socket';
@@ -14,6 +15,7 @@ const DEMO = [
 
 export function Login() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const login = useAuthStore((s) => s.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +32,7 @@ export function Login() {
       refreshSocketAuth();
       navigate('/');
     } catch (err) {
-      setError(getApiError(err, 'Invalid email or password'));
+      setError(getApiError(err, t('login.invalid')));
     } finally {
       setLoading(false);
     }
@@ -41,12 +43,12 @@ export function Login() {
       <Card className="w-full max-w-sm">
         <CardBody className="space-y-5">
           <div>
-            <h1 className="text-xl">Sign in to SedERP</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Use a demo account below or your credentials.</p>
+            <h1 className="text-xl">{t('login.title')}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t('login.subtitle')}</p>
           </div>
           <form onSubmit={submit} className="space-y-3">
             <div>
-              <label className="mb-1 block text-sm font-medium">Email</label>
+              <label className="mb-1 block text-sm font-medium">{t('login.email')}</label>
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -56,7 +58,7 @@ export function Login() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">Password</label>
+              <label className="mb-1 block text-sm font-medium">{t('login.password')}</label>
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -67,11 +69,11 @@ export function Login() {
             </div>
             {error && <p className="text-sm text-danger">{error}</p>}
             <Button type="submit" className="w-full" isLoading={loading} data-testid="login-submit">
-              Sign in
+              {t('login.submit')}
             </Button>
           </form>
           <div className="space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
-            <p className="font-medium text-foreground">Demo accounts</p>
+            <p className="font-medium text-foreground">{t('login.demo')}</p>
             {DEMO.map((d) => (
               <button
                 key={d.email}

@@ -1,16 +1,19 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Activity, LogOut, Wrench } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { cn } from '@/lib/cn';
 
 const LINKS = [
-  { to: '/iot', label: 'SedIoT', icon: Activity },
-  { to: '/service', label: 'SedService', icon: Wrench },
+  { to: '/iot', labelKey: 'nav.iot', icon: Activity },
+  { to: '/service', labelKey: 'nav.service', icon: Wrench },
 ];
 
 /** Persistent top nav so users can switch modules from anywhere. */
 export function TopNav() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
@@ -21,7 +24,7 @@ export function TopNav() {
           Sed<span className="text-brand-500">ERP</span>
         </NavLink>
         <nav className="flex items-center gap-1">
-          {LINKS.map(({ to, label, icon: Icon }) => (
+          {LINKS.map(({ to, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -33,11 +36,12 @@ export function TopNav() {
                 )
               }
             >
-              <Icon className="size-4" /> {label}
+              <Icon className="size-4" /> {t(labelKey)}
             </NavLink>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ms-auto flex items-center gap-3">
+          <LanguageSwitcher />
           {user ? (
             <>
               <span className="hidden text-sm text-muted-foreground sm:inline">
@@ -48,12 +52,12 @@ export function TopNav() {
                 onClick={() => { logout(); navigate('/login'); }}
                 className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-surface-2"
               >
-                <LogOut className="size-4" /> Logout
+                <LogOut className="size-4" /> {t('nav.signOut')}
               </button>
             </>
           ) : (
             <NavLink to="/login" data-testid="nav-signin" className="rounded-lg bg-brand-gradient px-4 py-1.5 text-sm font-medium text-white">
-              Sign in
+              {t('nav.signIn')}
             </NavLink>
           )}
         </div>

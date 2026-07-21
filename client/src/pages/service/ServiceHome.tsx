@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/cn';
 import { AdminConsole } from '@/features/service/admin/AdminConsole';
@@ -8,6 +9,7 @@ import { UserPortal } from '@/features/service/user/UserPortal';
 type SubTab = 'user' | 'admin';
 
 export function ServiceHome() {
+  const { t } = useTranslation();
   const can = useAuthStore((s) => s.can);
   // The Admin sub-tab is available to admins and anyone granted the
   // "view all requests" permission (a manager-style role).
@@ -22,8 +24,8 @@ export function ServiceHome() {
   const [tab, setTab] = useState<SubTab>(initialCategory ? 'user' : canAdmin ? 'admin' : 'user');
 
   const tabs: { key: SubTab; label: string; show: boolean }[] = [
-    { key: 'user', label: 'User', show: true },
-    { key: 'admin', label: 'Admin', show: canAdmin },
+    { key: 'user', label: t('service.user'), show: true },
+    { key: 'admin', label: t('service.admin'), show: canAdmin },
   ];
 
   return (

@@ -1,0 +1,33 @@
+{
+  "nav": { "home": "Accueil", "iot": "SedIoT", "service": "SedService", "signIn": "Se connecter", "signOut": "Se déconnecter" },
+  "home": {
+    "badge": "Plateforme d'Opérations Industrielles",
+    "title": "Une plateforme pour votre usine et votre service sur le terrain",
+    "subtitle": "Surveillez chaque machine en temps réel avec SedIoT et gérez votre place de marché de services de bout en bout avec SedService.",
+    "iotDesc": "Surveillance d'usine en temps réel — capteurs en direct, KPI, alertes et rapports.",
+    "serviceDesc": "Place de marché de services — demandes, devis, techniciens et interventions.",
+    "open": "Ouvrir"
+  },
+  "login": {
+    "title": "Connexion à SedERP",
+    "subtitle": "Utilisez un compte de démonstration ou vos identifiants.",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "demo": "Comptes de démonstration",
+    "invalid": "E-mail ou mot de passe invalide"
+  },
+  "iot": {
+    "live": "En direct",
+    "connecting": "Connexion…",
+    "nav": {
+      "dashboard": "Tableau de bord", "machines": "Machines", "alerts": "Alertes", "industries": "Industries",
+      "process": "Technologies de Procédé", "services": "Services", "reports": "Rapports", "portal": "Portail"
+    }
+  },
+  "service": { "user": "Utilisateur", "admin": "Administrateur" },
+  "common": {
+    "save": "Enregistrer", "cancel": "Annuler", "submit": "Envoyer", "edit": "Modifier", "add": "Ajouter",
+    "delete": "Supprimer", "close": "Fermer", "loading": "Chargement…", "all": "Tous", "language": "Langue"
+  }
+}

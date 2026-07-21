@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Activity, AlertTriangle, BarChart3, Boxes, Cpu, Factory, UserCircle, Wrench } from 'lucide-react';
 import { getSocket } from '@/socket/socket';
 import { cn } from '@/lib/cn';
@@ -25,6 +26,7 @@ const SECTIONS = [
 ];
 
 export function IotHome() {
+  const { t } = useTranslation();
   const [active, setActive] = useState('dashboard');
   const [connected, setConnected] = useState(false);
   const activeAlerts = useIotStore((s) => s.alerts.filter((a) => a.status !== 'resolved').length);
@@ -42,12 +44,12 @@ export function IotHome() {
     return () => { s.off('connect', on); s.off('disconnect', off); };
   }, []);
 
-  const label = SECTIONS.find((s) => s.key === active)?.label;
+  const label = t(`iot.nav.${active}`);
 
   return (
     <div className="container grid gap-6 py-8 lg:grid-cols-[240px_1fr]">
       <aside className="flex gap-1 overflow-x-auto lg:flex-col">
-        {SECTIONS.map(({ key, label: lbl, icon: Icon }) => (
+        {SECTIONS.map(({ key, icon: Icon }) => (
           <button
             key={key}
             data-testid={`iot-nav-${key}`}
@@ -57,7 +59,7 @@ export function IotHome() {
               active === key ? 'bg-brand-500/15 text-brand-500' : 'text-muted-foreground hover:bg-surface-2',
             )}
           >
-            <Icon className="size-4" /> {lbl}
+            <Icon className="size-4" /> {t(`iot.nav.${key}`)}
             {key === 'alerts' && activeAlerts > 0 && (
               <span className="ml-auto rounded-full bg-danger px-1.5 text-[10px] font-bold text-white">{activeAlerts}</span>
             )}
@@ -70,7 +72,7 @@ export function IotHome() {
           <h1 className="text-2xl">{label}</h1>
           <span className={cn('flex items-center gap-1.5 text-xs font-medium', connected ? 'text-success' : 'text-muted-foreground')} data-testid="iot-connection">
             <span className={cn('size-2 rounded-full', connected ? 'bg-success animate-pulse-soft' : 'bg-muted-foreground')} />
-            {connected ? 'Live' : 'Connecting…'}
+            {connected ? t('iot.live') : t('iot.connecting')}
           </span>
         </div>
 
