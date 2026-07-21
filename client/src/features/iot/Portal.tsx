@@ -14,6 +14,10 @@ const PERMISSION_LABELS: Record<string, string> = {
   canAccessReports: 'Access reports',
   canManageTechnicians: 'Manage technicians',
   canManageUsers: 'Manage users',
+  canControlMachines: 'Control machines',
+  canSendMachineAlerts: 'Send machine alerts',
+  canPowerCycleMachines: 'Power-cycle machines',
+  canBroadcastAlerts: 'Broadcast alerts',
 };
 
 const ROLE_STYLE: Record<string, string> = {

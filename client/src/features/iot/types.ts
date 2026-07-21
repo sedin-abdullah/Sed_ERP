@@ -1,4 +1,4 @@
-export type MachineStatus = 'running' | 'idle' | 'fault';
+export type MachineStatus = 'running' | 'idle' | 'fault' | 'off';
 
 export interface MachineReading {
   id: string;
@@ -41,5 +41,23 @@ export interface Alert {
   severity: AlertSeverity;
   message: string;
   status: AlertStatus;
+  source?: 'auto' | 'admin';
   createdAt: string;
+}
+
+export type CommandName = 'power_on' | 'power_off' | 'restart' | 'alert' | 'set_param' | 'clear_alerts' | 'broadcast_alert';
+export type AckStatus = 'pending' | 'ok' | 'error' | 'timeout';
+
+export interface MachineCommand {
+  id: string;
+  machineId: string;
+  machineName: string;
+  command: CommandName;
+  payload?: Record<string, unknown>;
+  commandId: string;
+  issuedByName: string;
+  issuedAt: string;
+  ackStatus: AckStatus;
+  ackAt?: string;
+  ackMessage?: string;
 }

@@ -13,6 +13,11 @@ export const ALL_PERMISSIONS = [
   'canAccessReports',
   'canManageTechnicians',
   'canManageUsers',
+  // SedIoT machine-control (MQTT command layer)
+  'canControlMachines',
+  'canSendMachineAlerts',
+  'canPowerCycleMachines',
+  'canBroadcastAlerts',
 ] as const;
 export type Permission = (typeof ALL_PERMISSIONS)[number];
 

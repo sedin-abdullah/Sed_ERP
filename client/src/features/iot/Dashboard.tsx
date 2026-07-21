@@ -13,6 +13,7 @@ const STATUS_STYLE: Record<MachineStatus, string> = {
   running: 'bg-success/15 text-success',
   idle: 'bg-muted text-muted-foreground',
   fault: 'bg-danger/15 text-danger',
+  off: 'bg-muted text-muted-foreground',
 };
 
 function Kpi({ icon: Icon, label, value, unit }: { icon: typeof Zap; label: string; value: string; unit?: string }) {

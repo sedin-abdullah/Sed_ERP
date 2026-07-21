@@ -4,6 +4,8 @@ import { connectDB } from './config/db';
 import { env } from './config/env';
 import { initSocket } from './sockets/io';
 import { startSimulator } from './simulator/iot';
+import { startBroker } from './mqtt/broker';
+import { startCloudConsumer } from './mqtt/cloud';
 import { seedAccounts } from './config/seedAccounts';
 import { seedServiceDemo } from './config/seedService';
 
@@ -22,8 +24,11 @@ async function start(): Promise<void> {
   const server = http.createServer(app);
   initSocket(server);
 
-  // Live IoT stream: seeds machines + emits iot:update / alert events.
-  await startSimulator();
+  // MQTT layer: broker (embedded aedes unless MQTT_URL is set) → cloud consumer
+  // (telemetry/status/ack → Socket.IO + alerts) → device simulator.
+  const brokerUrl = await startBroker();
+  startCloudConsumer(brokerUrl);
+  await startSimulator(brokerUrl);
 
   server.listen(env.PORT, () => {
     console.log(`[server] SedERP API on :${env.PORT} (${env.NODE_ENV})`);

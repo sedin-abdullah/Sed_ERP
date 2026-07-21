@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Alert, IotUpdate, MachineReading } from './types';
+import type { Alert, IotUpdate, MachineCommand, MachineReading, MachineStatus } from './types';
 
 export interface SeriesPoint {
   t: string; // HH:MM:SS
@@ -14,16 +14,21 @@ interface IotState {
   machines: MachineReading[];
   series: SeriesPoint[];
   alerts: Alert[];
+  commands: MachineCommand[];
   applyUpdate: (update: IotUpdate) => void;
   upsertAlert: (alert: Alert) => void;
   resolveAlert: (id: string) => void;
   setAlerts: (alerts: Alert[]) => void;
+  setMachineStatus: (machineId: string, status: MachineStatus) => void;
+  setCommands: (commands: MachineCommand[]) => void;
+  upsertCommand: (command: MachineCommand) => void;
 }
 
 export const useIotStore = create<IotState>((set) => ({
   machines: [],
   series: [],
   alerts: [],
+  commands: [],
   applyUpdate: (update) =>
     set((state) => {
       const running = update.machines.filter((m) => m.status === 'running');
@@ -47,4 +52,19 @@ export const useIotStore = create<IotState>((set) => ({
       alerts: state.alerts.map((a) => (a.id === id ? { ...a, status: 'resolved' } : a)),
     })),
   setAlerts: (alerts) => set({ alerts }),
+  setMachineStatus: (machineId, status) =>
+    set((state) => ({ machines: state.machines.map((m) => (m.id === machineId ? { ...m, status } : m)) })),
+  setCommands: (commands) =>
+    set((state) => {
+      // Merge a machine's fetched history in, de-duped by id (socket events may
+      // have already added some).
+      const map = new Map(state.commands.map((c) => [c.id, c]));
+      commands.forEach((c) => map.set(c.id, c));
+      return { commands: [...map.values()] };
+    }),
+  upsertCommand: (command) =>
+    set((state) => {
+      const rest = state.commands.filter((c) => c.id !== command.id);
+      return { commands: [command, ...rest].slice(0, 200) };
+    }),
 }));

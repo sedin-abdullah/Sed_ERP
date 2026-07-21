@@ -60,3 +60,30 @@ npm run dev                   # http://localhost:5173
 5. SedService User (landing + map + request/quote forms via DummyJSON + REST Countries, My Requests)
 6. Cross-module deep-links + i18n
 7. Polish + free-tier deploy (Vercel + Render + Atlas M0)
+
+## MQTT machine-control layer
+
+All machine telemetry flows over **MQTT**. Devices (the simulator) publish
+telemetry/status; the cloud (this server) subscribes, persists alerts, and
+fans everything out over Socket.IO. Admins remotely control machines
+(power on/off, restart, set parameters, send/clear alerts, broadcast) — every
+command is audited in `MachineCommand` and its ack reflected live.
+
+**Topics:** `sederp/machines/{id}/{telemetry|status|commands|ack|alerts}` and
+`sederp/alerts/broadcast`.
+
+**Broker options:**
+
+- **Default (no setup):** leave `MQTT_URL` unset — an embedded **aedes** broker
+  runs inside the Node process on `MQTT_BROKER_PORT` (default 1883). This is what
+  lets the MQTT layer run on Render free tier with no external broker.
+- **Real Mosquitto (optional, local dev):**
+  ```bash
+  # macOS:  brew install mosquitto && brew services start mosquitto
+  # Docker: docker run -d -p 1883:1883 eclipse-mosquitto
+  ```
+  then set `MQTT_URL=mqtt://localhost:1883` in `server/.env`.
+
+**Machine-control permissions (RBAC):** `canControlMachines`,
+`canSendMachineAlerts`, `canPowerCycleMachines`, `canBroadcastAlerts` — enforced
+on the backend before any command is published.

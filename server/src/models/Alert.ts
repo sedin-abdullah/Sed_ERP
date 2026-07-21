@@ -6,10 +6,12 @@ export type AlertStatus = 'active' | 'ack' | 'resolved';
 export interface IAlert extends Document {
   machineId: Types.ObjectId;
   machineName: string;
-  metric: string; // temperature | vibration | status | energy
+  metric: string; // temperature | vibration | status | energy | admin
   severity: AlertSeverity;
   message: string;
   status: AlertStatus;
+  source: 'auto' | 'admin';
+  issuedBy?: Types.ObjectId;
   acknowledgedBy?: Types.ObjectId;
   resolvedBy?: Types.ObjectId;
   createdAt: Date;
@@ -24,6 +26,8 @@ const alertSchema = new Schema<IAlert>(
     severity: { type: String, enum: ['info', 'warning', 'critical'], default: 'warning' },
     message: { type: String, required: true },
     status: { type: String, enum: ['active', 'ack', 'resolved'], default: 'active', index: true },
+    source: { type: String, enum: ['auto', 'admin'], default: 'auto' },
+    issuedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     acknowledgedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     resolvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   },

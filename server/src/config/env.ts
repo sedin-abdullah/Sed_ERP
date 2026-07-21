@@ -25,6 +25,12 @@ export const env = {
   // shell on Render free tier) gets login accounts; set SEED_ON_BOOT=false
   // to disable.
   SEED_ON_BOOT: (process.env.SEED_ON_BOOT ?? 'true').toLowerCase() !== 'false',
+  // MQTT: if MQTT_URL is set (e.g. a real Mosquitto: mqtt://localhost:1883),
+  // connect to it. Otherwise start an embedded aedes broker on
+  // MQTT_BROKER_PORT and connect to that — so the deployed app (Render free
+  // tier, no external broker) still runs the full MQTT layer.
+  MQTT_URL: process.env.MQTT_URL, // undefined => embedded broker
+  MQTT_BROKER_PORT: Number(process.env.MQTT_BROKER_PORT ?? 1883),
 };
 
 export const isProduction = env.NODE_ENV === 'production';
