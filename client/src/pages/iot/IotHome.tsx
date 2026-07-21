@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Activity, AlertTriangle, BarChart3, Boxes, Cpu, FileText, Layers, UserCircle } from 'lucide-react';
-import { Card, CardBody } from '@/components/ui/Card';
+import { Activity, AlertTriangle, BarChart3, Boxes, Cpu, Factory, UserCircle, Wrench } from 'lucide-react';
 import { getSocket } from '@/socket/socket';
 import { cn } from '@/lib/cn';
 import { useIotStream } from '@/features/iot/useIotStream';
@@ -8,19 +7,22 @@ import { useIotStore } from '@/features/iot/iotStore';
 import { Dashboard } from '@/features/iot/Dashboard';
 import { MachinesPanel } from '@/features/iot/MachinesPanel';
 import { AlertsPanel } from '@/features/iot/AlertsPanel';
+import { Industries } from '@/features/iot/Industries';
+import { ProcessTechnologies } from '@/features/iot/ProcessTechnologies';
+import { Services } from '@/features/iot/Services';
+import { Reports } from '@/features/iot/Reports';
+import { Portal } from '@/features/iot/Portal';
 
 const SECTIONS = [
   { key: 'dashboard', label: 'Dashboard', icon: Activity },
   { key: 'machines', label: 'Machines', icon: Boxes },
   { key: 'alerts', label: 'Alerts', icon: AlertTriangle },
-  { key: 'industries', label: 'Industries', icon: Layers },
+  { key: 'industries', label: 'Industries', icon: Factory },
   { key: 'process', label: 'Process Technologies', icon: Cpu },
-  { key: 'services', label: 'Services', icon: Boxes },
+  { key: 'services', label: 'Services', icon: Wrench },
   { key: 'reports', label: 'Reports', icon: BarChart3 },
   { key: 'portal', label: 'Portal', icon: UserCircle },
 ];
-
-const READY = new Set(['dashboard', 'machines', 'alerts']);
 
 export function IotHome() {
   const [active, setActive] = useState('dashboard');
@@ -75,17 +77,11 @@ export function IotHome() {
         {active === 'dashboard' && <Dashboard />}
         {active === 'machines' && <MachinesPanel />}
         {active === 'alerts' && <AlertsPanel />}
-        {!READY.has(active) && (
-          <Card>
-            <CardBody className="flex min-h-[36vh] flex-col items-center justify-center gap-2 text-center">
-              <FileText className="size-8 text-muted-foreground" />
-              <p className="font-medium">SedIoT — {label}</p>
-              <p className="max-w-md text-sm text-muted-foreground">
-                This directory arrives in Phase 3 (Industries, Process Technologies, Services, Reports, Portal).
-              </p>
-            </CardBody>
-          </Card>
-        )}
+        {active === 'industries' && <Industries />}
+        {active === 'process' && <ProcessTechnologies />}
+        {active === 'services' && <Services />}
+        {active === 'reports' && <Reports />}
+        {active === 'portal' && <Portal />}
       </section>
     </div>
   );
