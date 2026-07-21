@@ -4,7 +4,9 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
 import { useAuthStore } from '@/store/authStore';
+import { Loading, ErrorState } from '@/components/ui/States';
 import { SERVICE_OFFERINGS } from '@/features/iot/catalog';
+import { useServiceStore } from '../serviceStore';
 import { useServiceStream } from '../useServiceStream';
 import { NewRequestForm } from './NewRequestForm';
 import { MyRequests } from './MyRequests';
@@ -18,7 +20,8 @@ export function UserPortal({ initialCategory }: { initialCategory?: string }) {
   const can = useAuthStore((s) => s.can);
   const canRequest = can('canRequestService');
   // Only user-owned data needed here — skip jobs/technicians/users fetches.
-  useServiceStream({ loadJobs: false, loadTechnicians: false });
+  const { status, retry } = useServiceStream({ loadJobs: false, loadTechnicians: false });
+  const loaded = useServiceStore((s) => s.loaded);
 
   const [tab, setTab] = useState<Tab>(initialCategory && canRequest ? 'new' : 'catalog');
   const [prefill, setPrefill] = useState<string | undefined>(initialCategory);
@@ -72,7 +75,11 @@ export function UserPortal({ initialCategory }: { initialCategory?: string }) {
 
       {tab === 'new' && canRequest && <NewRequestForm prefillCategory={prefill} onCreated={() => setTab('mine')} />}
 
-      {tab === 'mine' && <MyRequests />}
+      {tab === 'mine' && (
+        !loaded && status === 'loading' ? <Loading hint="Loading your requests…" testId="user-loading" />
+        : !loaded && status === 'error' ? <ErrorState message="Couldn't reach the server." onRetry={retry} testId="user-error" />
+        : <MyRequests />
+      )}
     </div>
   );
 }

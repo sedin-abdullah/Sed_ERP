@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ClipboardList, HardHat, KanbanSquare, Users } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { Loading, ErrorState } from '@/components/ui/States';
 import { useServiceStream } from '../useServiceStream';
 import { useServiceStore } from '../serviceStore';
 import { RequestsAdmin } from './RequestsAdmin';
@@ -21,15 +22,21 @@ const NAV: { key: Panel; label: string; icon: typeof Users }[] = [
  *  routes between the four management panels. */
 export function AdminConsole() {
   const [panel, setPanel] = useState<Panel>('requests');
-  useServiceStream({ loadUsers: true });
+  const { status, retry } = useServiceStream({ loadUsers: true });
 
   const requests = useServiceStore((s) => s.requests);
   const technicians = useServiceStore((s) => s.technicians);
   const jobs = useServiceStore((s) => s.jobs);
 
+  const loaded = useServiceStore((s) => s.loaded);
   const openRequests = requests.filter((r) => !['completed', 'cancelled'].includes(r.status)).length;
   const availableTechs = technicians.filter((t) => t.active && t.status === 'available').length;
   const activeJobs = jobs.filter((j) => j.status !== 'completed').length;
+
+  // First load only — on tab switches the store already has data, so skip the
+  // spinner and keep the console responsive.
+  if (!loaded && status === 'loading') return <Loading hint="Loading the service console… (the free-tier server may be waking up)" testId="admin-loading" />;
+  if (!loaded && status === 'error') return <ErrorState message="Couldn't reach the server." onRetry={retry} testId="admin-error" />;
 
   return (
     <div className="space-y-5" data-testid="service-admin-console">
