@@ -36,7 +36,7 @@ export function Home() {
 
       <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
         {PRODUCTS.map((p) => (
-          <Link key={p.to} to={p.to}>
+          <Link key={p.to} to={p.to} data-testid={`home-product-${p.to.replace('/', '')}`}>
             <Card interactive className="h-full">
               <CardBody className="flex h-full flex-col">
                 <span className="flex size-12 items-center justify-center rounded-xl bg-brand-500/15 text-brand-500">

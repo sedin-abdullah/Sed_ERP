@@ -22,6 +22,7 @@ export function ServiceHome() {
         {tabs.filter((t) => t.show).map((t) => (
           <button
             key={t.key}
+            data-testid={`service-tab-${t.key}`}
             onClick={() => setTab(t.key)}
             className={cn(
               'rounded-xl px-4 py-2 text-sm font-medium transition-colors',

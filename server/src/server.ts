@@ -3,6 +3,7 @@ import app from './app';
 import { connectDB } from './config/db';
 import { env } from './config/env';
 import { initSocket } from './sockets/io';
+import { startSimulator } from './simulator/iot';
 
 async function start(): Promise<void> {
   await connectDB();
@@ -10,7 +11,8 @@ async function start(): Promise<void> {
   const server = http.createServer(app);
   initSocket(server);
 
-  // Phase 2 will start the IoT simulator here (emits iot:update on an interval).
+  // Live IoT stream: seeds machines + emits iot:update / alert events.
+  await startSimulator();
 
   server.listen(env.PORT, () => {
     console.log(`[server] SedERP API on :${env.PORT} (${env.NODE_ENV})`);
