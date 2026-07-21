@@ -6,7 +6,8 @@ services:
     runtime: node
     rootDir: server
     plan: free
-    buildCommand: npm install && npm run build
+    # --include=dev so TypeScript + @types build even with NODE_ENV=production.
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/v1/health
     envVars:
