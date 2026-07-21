@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
 import iotRoutes from './iot.routes';
+import technicianRoutes from './technician.routes';
+import serviceRequestRoutes from './serviceRequest.routes';
+import jobRoutes from './job.routes';
+import userRoutes from './user.routes';
 
 const router = Router();
 
@@ -10,7 +14,9 @@ router.get('/health', (_req, res) => {
 
 router.use('/auth', authRoutes);
 router.use('/iot', iotRoutes);
-
-// Phase 3+ mounts: /categories, /service-requests, /jobs, …
+router.use('/technicians', technicianRoutes);
+router.use('/service-requests', serviceRequestRoutes);
+router.use('/jobs', jobRoutes);
+router.use('/users', userRoutes);
 
 export default router;
