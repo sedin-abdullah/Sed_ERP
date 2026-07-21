@@ -21,6 +21,10 @@ export const approveRequest = (id: string) =>
 export const assignRequest = (id: string, technicianId: string, scheduledFor?: string) =>
   api.post(`/service-requests/${id}/assign`, { technicianId, scheduledFor }).then((r) => r.data.data);
 export const fetchQuotes = () => unwrap<Quote[]>(api.get('/service-requests/quotes/all'));
+// Owner-facing: view / respond to the quote on my own request.
+export const fetchMyQuote = (id: string) => unwrap<Quote | null>(api.get(`/service-requests/${id}/quote`));
+export const respondToQuote = (id: string, action: 'accept' | 'reject') =>
+  api.post(`/service-requests/${id}/respond`, { action }).then((r) => r.data.data as { request: ServiceRequest; quote: Quote | null });
 
 // --- Technicians ---
 export const fetchTechnicians = () => unwrap<Technician[]>(api.get('/technicians'));

@@ -171,6 +171,57 @@ router.patch('/:id/status', async (req, res) => {
   res.json({ success: true, data: request });
 });
 
+// --- Owner: view the quote on my own request ---
+router.get('/:id/quote', async (req, res) => {
+  const request = await ServiceRequest.findById(req.params.id);
+  if (!request) {
+    res.status(404).json({ success: false, message: 'Request not found' });
+    return;
+  }
+  const isOwner = String(request.requesterId) === String(req.user!._id);
+  const canManage = req.user!.role === 'admin' || req.user!.permissions.includes('canViewAllRequests');
+  if (!isOwner && !canManage) {
+    res.status(403).json({ success: false, message: 'Not allowed' });
+    return;
+  }
+  const quote = request.quoteId ? await Quote.findById(request.quoteId) : null;
+  res.json({ success: true, data: quote });
+});
+
+// --- Owner: accept or reject the quote ---
+const respondSchema = z.object({ action: z.enum(['accept', 'reject']) });
+
+router.post('/:id/respond', async (req, res) => {
+  const parsed = respondSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, message: 'action must be accept or reject' });
+    return;
+  }
+  const request = await ServiceRequest.findById(req.params.id);
+  if (!request) {
+    res.status(404).json({ success: false, message: 'Request not found' });
+    return;
+  }
+  if (String(request.requesterId) !== String(req.user!._id)) {
+    res.status(403).json({ success: false, message: 'Only the requester can respond to a quote' });
+    return;
+  }
+  if (request.status !== 'quoted') {
+    res.status(409).json({ success: false, message: 'No pending quote to respond to' });
+    return;
+  }
+  const accepted = parsed.data.action === 'accept';
+  request.status = accepted ? 'approved' : 'pending';
+  await request.save();
+  let quote = null;
+  if (request.quoteId) {
+    quote = await Quote.findByIdAndUpdate(request.quoteId, { status: accepted ? 'accepted' : 'rejected' }, { new: true });
+    if (quote) broadcast('quote:changed', quote.toJSON());
+  }
+  broadcast('service-request:changed', request.toJSON());
+  res.json({ success: true, data: { request, quote } });
+});
+
 // Quotes list (admin) — flat, for the console.
 router.get('/quotes/all', requirePermission('canViewAllRequests'), async (_req, res) => {
   const quotes = await Quote.find().sort({ createdAt: -1 }).limit(200);

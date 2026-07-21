@@ -5,6 +5,7 @@
  */
 import { Technician } from '../models/Technician';
 import { ServiceRequest, RequestPriority, RequestStatus } from '../models/ServiceRequest';
+import { Quote } from '../models/Quote';
 import { User } from '../models/User';
 
 const DEMO_TECHNICIANS = [
@@ -59,7 +60,21 @@ export async function seedServiceDemo(): Promise<void> {
         requesterName: u?.name ?? 'Demo User',
       };
     });
-    await ServiceRequest.insertMany(docs);
-    console.log(`[seed] ${docs.length} demo service requests created`);
+    const created = await ServiceRequest.insertMany(docs);
+    console.log(`[seed] ${created.length} demo service requests created`);
+
+    // Give the pre-quoted request a real quote doc so the User side shows an
+    // amount to accept/reject out of the box.
+    const quoted = created.find((r) => r.status === 'quoted');
+    if (quoted) {
+      const quote = await Quote.create({
+        requestId: quoted._id,
+        amount: 4200,
+        notes: 'Includes gateway integration and 2-day commissioning.',
+        status: 'sent',
+      });
+      quoted.quoteId = quote._id as never;
+      await quoted.save();
+    }
   }
 }
