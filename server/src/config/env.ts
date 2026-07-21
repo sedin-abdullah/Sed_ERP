@@ -21,6 +21,10 @@ export const env = {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean),
+  // Idempotently upsert the demo accounts on boot. Defaults on so prod (no
+  // shell on Render free tier) gets login accounts; set SEED_ON_BOOT=false
+  // to disable.
+  SEED_ON_BOOT: (process.env.SEED_ON_BOOT ?? 'true').toLowerCase() !== 'false',
 };
 
 export const isProduction = env.NODE_ENV === 'production';
