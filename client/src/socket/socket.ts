@@ -14,7 +14,8 @@ export function getSocket(): Socket {
   if (!socket) {
     socket = io(SOCKET_URL, {
       autoConnect: true,
-      transports: ['websocket'],
+      // Default transports (polling → websocket upgrade) — most reliable behind
+      // free-tier proxies like Render.
       auth: { token: useAuthStore.getState().accessToken ?? undefined },
     });
     socket.on('connect', () => console.debug('[socket] connected'));

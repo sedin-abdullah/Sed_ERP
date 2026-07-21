@@ -1,0 +1,22 @@
+# Render Blueprint for the SedERP backend (Express + Socket.IO).
+# In Render: New → Blueprint → point at the Sed_ERP repo. Root dir = server.
+services:
+  - type: web
+    name: sederp-server
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # set in dashboard (Atlas M0 connection string, db name: sederp)
+      - key: JWT_SECRET
+        sync: false # set in dashboard (long random string)
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_URL
+        sync: false # set to your Vercel URL, e.g. https://sederp.vercel.app
