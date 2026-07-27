@@ -41,11 +41,11 @@ Industrial operations platform with two products under one roof:
 | Piece | Host |
 |---|---|
 | Frontend | Vercel — `https://sed-erp.vercel.app` |
-| Backend | Render (free web service) — `https://sed-erp.onrender.com` |
+| Backend | Railway (free credit) — `https://sederp-production.up.railway.app` |
 | Database | MongoDB Atlas M0 (db `sederp`) |
-| MQTT broker | Embedded aedes inside the Render Node process (no external infra) |
+| MQTT broker | Embedded aedes inside the Railway Node process (no external infra) |
 
-> Render free tier sleeps after ~15 min idle → first request may take ~50 s (cold start). WebSocket works.
+> Railway free credit runs the container always-on (no idle sleep / cold start). WebSocket works.
 
 ---
 
@@ -65,7 +65,7 @@ Device simulator                Embedded MQTT broker            Cloud consumer  
 
 ### Base URL
 ```
-https://sed-erp.onrender.com/api/v1
+https://sederp-production.up.railway.app/api/v1
 ```
 All responses use the envelope:
 ```json
@@ -153,7 +153,7 @@ Command POST returns **202** with the `pending` `MachineCommand`; watch `machine
 
 **Example — power off a machine**
 ```bash
-curl -X POST https://sed-erp.onrender.com/api/v1/iot/machines/<id>/commands \
+curl -X POST https://sederp-production.up.railway.app/api/v1/iot/machines/<id>/commands \
   -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
   -d '{ "command": "power_off" }'
 ```

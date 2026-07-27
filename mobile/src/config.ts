@@ -5,5 +5,5 @@ import Constants from 'expo-constants';
  *  works the moment it's opened in Expo Go — no config needed. */
 const extra = (Constants.expoConfig?.extra ?? {}) as { apiUrl?: string; socketUrl?: string };
 
-export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? extra.apiUrl ?? 'https://sed-erp.onrender.com/api/v1';
-export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL ?? extra.socketUrl ?? 'https://sed-erp.onrender.com';
+export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? extra.apiUrl ?? 'https://sederp-production.up.railway.app/api/v1';
+export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL ?? extra.socketUrl ?? 'https://sederp-production.up.railway.app';
