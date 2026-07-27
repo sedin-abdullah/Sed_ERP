@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/Button';
 import { Field, Input, Select } from '@/components/ui/form';
 import { getApiError } from '@/lib/api';
 import { useIotStore } from './iotStore';
-import { submitReading } from './controlApi';
-import type { MachineReading } from './types';
+import { fetchMachines, submitReading } from './controlApi';
+import type { Machine, MachineReading } from './types';
 
 const NUM_FIELDS: { key: keyof MachineReading; label: string }[] = [
   { key: 'temperature', label: 'Temperature (°C)' },
@@ -19,48 +19,58 @@ const NUM_FIELDS: { key: keyof MachineReading; label: string }[] = [
 
 /** Admin manual reading entry (used when the live stream is OFF). Publishes
  *  through the same MQTT telemetry path, so it replicates to machines, alerts
- *  and reports. Pre-fills from the machine's current reading. */
+ *  and reports.
+ *
+ *  The machine list comes from the REST registry (authoritative, always
+ *  available) — NOT the realtime store — so the picker + Apply button never
+ *  depend on a socket update having arrived. Metric fields pre-fill from the
+ *  live store reading when present. */
 export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () => void; initialMachineId?: string }) {
-  const machines = useIotStore((s) => s.machines);
-  const [machineId, setMachineId] = useState(initialMachineId ?? machines[0]?.id ?? '');
-  const current = useMemo(() => machines.find((m) => m.id === machineId), [machines, machineId]);
-
-  // Machines may hydrate after mount (first iot:update); make sure the selected
-  // id points at a real machine so the Apply button isn't stuck disabled.
-  useEffect(() => {
-    if (machines.length && !machines.some((m) => m.id === machineId)) {
-      setMachineId(machines[0].id);
-    }
-  }, [machines, machineId]);
-
+  const liveMachines = useIotStore((s) => s.machines);
+  const [registry, setRegistry] = useState<Machine[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+  const [machineId, setMachineId] = useState(initialMachineId ?? '');
   const [values, setValues] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState<string>('');
+  const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
 
-  // Effective value for a field: typed override, else the machine's live value.
-  const valueFor = (key: string) => (values[key] !== undefined ? values[key] : current ? String(current[key as keyof MachineReading]) : '');
+  // Authoritative machine list from REST.
+  useEffect(() => {
+    let cancelled = false;
+    fetchMachines()
+      .then((list: Machine[]) => {
+        if (cancelled) return;
+        setRegistry(list);
+        setMachineId((cur) => cur || list[0]?.id || '');
+      })
+      .catch(() => undefined)
+      .finally(() => { if (!cancelled) setLoadingList(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const live = useMemo(() => liveMachines.find((m) => m.id === machineId), [liveMachines, machineId]);
+
+  // Effective field value: the admin's typed override, else the live reading.
+  const valueFor = (key: string) =>
+    values[key] !== undefined ? values[key] : live ? String(live[key as keyof MachineReading]) : '';
 
   async function submit() {
-    // Resolve the target even if machineId state hasn't caught up to the list.
-    const targetId = machineId || machines[0]?.id;
-    if (!targetId) { setError('No machine available'); return; }
+    if (!machineId) { setError('Select a machine'); return; }
     setLoading(true); setError(null); setOk(false);
     try {
-      const target = machines.find((m) => m.id === targetId);
       const reading: Record<string, number | string> = {};
       NUM_FIELDS.forEach(({ key }) => {
-        const v = values[key] !== undefined ? values[key] : target ? String(target[key as keyof MachineReading]) : '';
+        const v = valueFor(key);
         if (v !== '' && Number.isFinite(Number(v))) reading[key] = Number(v);
       });
-      const st = status || target?.status;
+      const st = status || live?.status;
       if (st) reading.status = st;
-      await submitReading(targetId, reading);
+      await submitReading(machineId, reading);
       setOk(true);
       setValues({});
-      // Close shortly after so the user sees the dashboard update behind it.
-      setTimeout(onClose, 700);
+      setTimeout(onClose, 700); // close so the dashboard update is visible
     } catch (e) {
       setError(getApiError(e));
     } finally {
@@ -72,9 +82,14 @@ export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () =>
     <Modal open onClose={onClose} title="Manual reading entry" testId="manual-entry-modal">
       <div className="space-y-3">
         <Field label="Machine">
-          <Select value={machineId} onChange={(e) => { setMachineId(e.target.value); setValues({}); setStatus(''); setOk(false); }} data-testid="manual-machine">
-            {machines.length === 0 && <option value="">No machines</option>}
-            {machines.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+          <Select
+            value={machineId}
+            onChange={(e) => { setMachineId(e.target.value); setValues({}); setStatus(''); setOk(false); }}
+            data-testid="manual-machine"
+          >
+            {loadingList && <option value="">Loading…</option>}
+            {!loadingList && registry.length === 0 && <option value="">No machines</option>}
+            {registry.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </Select>
         </Field>
 
@@ -83,6 +98,7 @@ export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () =>
             <Field key={key} label={label}>
               <Input
                 type="number"
+                inputMode="decimal"
                 value={valueFor(key)}
                 onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
                 data-testid={`manual-${key}`}
@@ -90,7 +106,7 @@ export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () =>
             </Field>
           ))}
           <Field label="Status">
-            <Select value={status || current?.status || 'running'} onChange={(e) => setStatus(e.target.value)} data-testid="manual-status">
+            <Select value={status || live?.status || 'running'} onChange={(e) => setStatus(e.target.value)} data-testid="manual-status">
               {['running', 'idle', 'fault', 'off'].map((s) => <option key={s} value={s}>{s}</option>)}
             </Select>
           </Field>
@@ -101,7 +117,7 @@ export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () =>
         </p>
         {error && <p className="text-sm text-danger" data-testid="manual-error">{error}</p>}
         {ok && <p className="text-sm text-success" data-testid="manual-ok">Reading applied ✓</p>}
-        <Button className="w-full" isLoading={loading} onClick={submit} data-testid="manual-submit" disabled={machines.length === 0}>
+        <Button className="w-full" isLoading={loading} onClick={submit} data-testid="manual-submit" disabled={!machineId || loading}>
           Apply reading
         </Button>
       </div>

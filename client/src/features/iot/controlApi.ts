@@ -1,5 +1,8 @@
 import { api } from '@/lib/api';
-import type { CommandName, MachineCommand } from './types';
+import type { CommandName, Machine, MachineCommand } from './types';
+
+/** Authoritative machine registry (used where the realtime store may be empty). */
+export const fetchMachines = () => api.get<{ data: Machine[] }>('/iot/machines').then((r) => r.data.data);
 
 /** REST layer for admin machine control. Each mutating call publishes an MQTT
  *  command server-side; the ack comes back over Socket.IO (machine:command-ack),
