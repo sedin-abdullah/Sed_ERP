@@ -7,6 +7,7 @@ import { Technician } from '../models/Technician';
 import { protect, requirePermission } from '../middleware/auth';
 import { broadcast } from '../sockets/io';
 import { nextCode } from '../utils/code';
+import { parseDateInput } from '../utils/date';
 
 const router = Router();
 router.use(protect);
@@ -76,7 +77,7 @@ router.post('/:id/quote', requirePermission('canViewAllRequests'), async (req, r
     requestId: request._id,
     amount: parsed.data.amount,
     notes: parsed.data.notes,
-    validUntil: parsed.data.validUntil ? new Date(parsed.data.validUntil) : undefined,
+    validUntil: parseDateInput(parsed.data.validUntil),
     createdBy: req.user!._id,
     status: 'sent',
   });
@@ -129,7 +130,7 @@ router.post('/:id/assign', requirePermission('canViewAllRequests'), async (req, 
     technicianId: technician._id,
     technicianName: technician.name,
     status: 'scheduled',
-    scheduledFor: parsed.data.scheduledFor ? new Date(parsed.data.scheduledFor) : undefined,
+    scheduledFor: parseDateInput(parsed.data.scheduledFor),
   });
   request.jobId = job._id as never;
   request.status = 'assigned';
