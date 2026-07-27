@@ -169,17 +169,20 @@ function AssignModal({ request, technicians, onClose, onDone }: {
   onClose: () => void;
   onDone: (r: ServiceRequest) => void;
 }) {
-  const [technicianId, setTechnicianId] = useState(technicians[0]?.id ?? '');
+  // The dropdown value is the technician's NAME (readable + stable for
+  // automation); we resolve it back to the id when submitting.
+  const [technicianName, setTechnicianName] = useState(technicians[0]?.name ?? '');
   const [scheduledFor, setScheduledFor] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function submit() {
-    if (!technicianId) { setError('Select a technician'); return; }
+    const tech = technicians.find((t) => t.name === technicianName);
+    if (!tech) { setError('Select a technician'); return; }
     setLoading(true);
     setError(null);
     try {
-      const res = await assignRequest(request.id, technicianId, scheduledFor || undefined);
+      const res = await assignRequest(request.id, tech.id, scheduledFor || undefined);
       onDone(res.request);
     } catch (e) {
       setError(getApiError(e));
@@ -192,16 +195,16 @@ function AssignModal({ request, technicians, onClose, onDone }: {
     <Modal open onClose={onClose} title={`Assign — ${request.code}`} testId="admin-assign-modal">
       <div className="space-y-3">
         <Field label="Technician">
-          <Select value={technicianId} onChange={(e) => setTechnicianId(e.target.value)} data-testid="admin-assign-technician">
+          <Select value={technicianName} onChange={(e) => setTechnicianName(e.target.value)} data-testid="admin-assign-technician">
             {technicians.length === 0 && <option value="">No active technicians</option>}
             {technicians.map((t) => (
-              <option key={t.id} value={t.id}>{t.name} · {t.region} ({t.status})</option>
+              <option key={t.id} value={t.name}>{t.name} · {t.region} ({t.status})</option>
             ))}
           </Select>
         </Field>
         <Field label="Scheduled for"><Input type="date" value={scheduledFor} onChange={(e) => setScheduledFor(e.target.value)} data-testid="admin-assign-date" /></Field>
         {error && <p className="text-sm text-danger">{error}</p>}
-        <Button className="w-full" isLoading={loading} onClick={submit} data-testid="admin-assign-submit" disabled={!technicianId}>Create job</Button>
+        <Button className="w-full" isLoading={loading} onClick={submit} data-testid="admin-assign-submit" disabled={!technicianName}>Create job</Button>
       </div>
     </Modal>
   );
