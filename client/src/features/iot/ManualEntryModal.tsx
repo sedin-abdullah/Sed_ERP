@@ -43,17 +43,20 @@ export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () =>
   const valueFor = (key: string) => (values[key] !== undefined ? values[key] : current ? String(current[key as keyof MachineReading]) : '');
 
   async function submit() {
-    if (!machineId) { setError('Select a machine'); return; }
+    // Resolve the target even if machineId state hasn't caught up to the list.
+    const targetId = machineId || machines[0]?.id;
+    if (!targetId) { setError('No machine available'); return; }
     setLoading(true); setError(null); setOk(false);
     try {
+      const target = machines.find((m) => m.id === targetId);
       const reading: Record<string, number | string> = {};
       NUM_FIELDS.forEach(({ key }) => {
-        const v = valueFor(key);
+        const v = values[key] !== undefined ? values[key] : target ? String(target[key as keyof MachineReading]) : '';
         if (v !== '' && Number.isFinite(Number(v))) reading[key] = Number(v);
       });
-      const st = status || current?.status;
+      const st = status || target?.status;
       if (st) reading.status = st;
-      await submitReading(machineId, reading);
+      await submitReading(targetId, reading);
       setOk(true);
       setValues({});
       // Close shortly after so the user sees the dashboard update behind it.
@@ -98,7 +101,7 @@ export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () =>
         </p>
         {error && <p className="text-sm text-danger" data-testid="manual-error">{error}</p>}
         {ok && <p className="text-sm text-success" data-testid="manual-ok">Reading applied ✓</p>}
-        <Button className="w-full" isLoading={loading} onClick={submit} data-testid="manual-submit" disabled={!machineId}>
+        <Button className="w-full" isLoading={loading} onClick={submit} data-testid="manual-submit" disabled={machines.length === 0}>
           Apply reading
         </Button>
       </div>
