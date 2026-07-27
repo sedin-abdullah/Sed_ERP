@@ -155,7 +155,7 @@ function QuoteModal({ request, onClose, onDone }: { request: ServiceRequest; onC
           <Input type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} data-testid="admin-quote-amount" placeholder="1500" />
         </Field>
         <Field label="Notes"><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} data-testid="admin-quote-notes" /></Field>
-        <Field label="Valid until"><Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} data-testid="admin-quote-valid" /></Field>
+        <Field label="Valid until"><Input type="text" inputMode="numeric" placeholder="YYYY-MM-DD" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} data-testid="admin-quote-valid" /></Field>
         {error && <p className="text-sm text-danger">{error}</p>}
         <Button className="w-full" isLoading={loading} onClick={submit} data-testid="admin-quote-submit">Send quote</Button>
       </div>
@@ -202,7 +202,7 @@ function AssignModal({ request, technicians, onClose, onDone }: {
             ))}
           </Select>
         </Field>
-        <Field label="Scheduled for"><Input type="date" value={scheduledFor} onChange={(e) => setScheduledFor(e.target.value)} data-testid="admin-assign-date" /></Field>
+        <Field label="Scheduled for"><Input type="text" inputMode="numeric" placeholder="YYYY-MM-DD" value={scheduledFor} onChange={(e) => setScheduledFor(e.target.value)} data-testid="admin-assign-date" /></Field>
         {error && <p className="text-sm text-danger">{error}</p>}
         <Button className="w-full" isLoading={loading} onClick={submit} data-testid="admin-assign-submit" disabled={!technicianName}>Create job</Button>
       </div>
