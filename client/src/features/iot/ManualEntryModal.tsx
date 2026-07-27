@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Field, Input, Select } from '@/components/ui/form';
@@ -25,6 +25,14 @@ export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () =>
   const [machineId, setMachineId] = useState(initialMachineId ?? machines[0]?.id ?? '');
   const current = useMemo(() => machines.find((m) => m.id === machineId), [machines, machineId]);
 
+  // Machines may hydrate after mount (first iot:update); make sure the selected
+  // id points at a real machine so the Apply button isn't stuck disabled.
+  useEffect(() => {
+    if (machines.length && !machines.some((m) => m.id === machineId)) {
+      setMachineId(machines[0].id);
+    }
+  }, [machines, machineId]);
+
   const [values, setValues] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -48,6 +56,8 @@ export function ManualEntryModal({ onClose, initialMachineId }: { onClose: () =>
       await submitReading(machineId, reading);
       setOk(true);
       setValues({});
+      // Close shortly after so the user sees the dashboard update behind it.
+      setTimeout(onClose, 700);
     } catch (e) {
       setError(getApiError(e));
     } finally {
