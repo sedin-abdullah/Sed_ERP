@@ -9,6 +9,7 @@ import { broadcast } from '../sockets/io';
 import { uuid } from '../mqtt/bus';
 import { publishBroadcastAlert, publishCommand, publishTargetedAlert, setThreshold } from '../mqtt/cloud';
 import type { CommandName } from '../mqtt/topics';
+import { applyManualReading, getStreamMode, setStreamMode } from '../simulator/iot';
 
 const router = Router();
 
@@ -54,6 +55,60 @@ router.patch('/alerts/:id', async (req, res) => {
   // Broadcast so every open Alerts page updates instantly.
   broadcast(parsed.data.status === 'resolved' ? 'alert:cleared' : 'alert:new', alert.toJSON());
   res.json({ success: true, data: alert });
+});
+
+// --- Live stream mode (live simulator vs manual admin entry) ---
+router.get('/stream', (_req, res) => {
+  res.json({ success: true, data: { mode: getStreamMode() } });
+});
+
+const streamSchema = z.object({ mode: z.enum(['live', 'manual']) });
+
+router.post('/stream', async (req, res) => {
+  if (!hasPerm(req, 'canControlMachines')) {
+    res.status(403).json({ success: false, message: 'Missing machine-control permission' });
+    return;
+  }
+  const parsed = streamSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, message: 'mode must be live or manual' });
+    return;
+  }
+  setStreamMode(parsed.data.mode);
+  broadcast('stream:mode', { mode: parsed.data.mode });
+  res.json({ success: true, data: { mode: parsed.data.mode } });
+});
+
+// --- Manual reading entry (admin acts as the sensor) ---
+const readingSchema = z.object({
+  temperature: z.number().optional(),
+  vibration: z.number().optional(),
+  throughput: z.number().optional(),
+  energyUsage: z.number().optional(),
+  pressure: z.number().optional(),
+  uptime: z.number().optional(),
+  oeeScore: z.number().optional(),
+  status: z.enum(['running', 'idle', 'fault', 'off']).optional(),
+});
+
+router.post('/machines/:id/reading', async (req, res) => {
+  if (!hasPerm(req, 'canControlMachines')) {
+    res.status(403).json({ success: false, message: 'Missing machine-control permission' });
+    return;
+  }
+  const parsed = readingSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, message: 'Invalid reading' });
+    return;
+  }
+  // Publishes telemetry through the normal MQTT path → alert detection +
+  // iot:update, so it replicates to machines, alerts and reports.
+  const ok = applyManualReading(req.params.id, parsed.data);
+  if (!ok) {
+    res.status(404).json({ success: false, message: 'Machine not found' });
+    return;
+  }
+  res.json({ success: true, data: { machineId: req.params.id, ...parsed.data } });
 });
 
 // --- Machine command history (audit trail) ---

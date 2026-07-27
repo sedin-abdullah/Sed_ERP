@@ -1,8 +1,14 @@
+import { useState } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { Activity, AlertTriangle, Cpu, Gauge, Leaf, Zap } from 'lucide-react';
+import { Activity, AlertTriangle, Cpu, Gauge, Leaf, Radio, SlidersHorizontal, Zap } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
+import { useAuthStore } from '@/store/authStore';
+import { getApiError } from '@/lib/api';
 import { useIotStore } from './iotStore';
+import { setStreamModeApi } from './controlApi';
+import { ManualEntryModal } from './ManualEntryModal';
 import type { MachineReading, MachineStatus } from './types';
 
 const BRAND = 'hsl(243 75% 62%)';
@@ -48,7 +54,28 @@ export function Dashboard() {
   const machines = useIotStore((s) => s.machines);
   const series = useIotStore((s) => s.series);
   const alerts = useIotStore((s) => s.alerts);
+  const streamMode = useIotStore((s) => s.streamMode);
+  const setStreamMode = useIotStore((s) => s.setStreamMode);
+  const can = useAuthStore((s) => s.can);
+  const canControl = can('canControlMachines');
   const activeAlerts = alerts.filter((a) => a.status !== 'resolved');
+
+  const [manualOpen, setManualOpen] = useState(false);
+  const [toggling, setToggling] = useState(false);
+  const [streamErr, setStreamErr] = useState<string | null>(null);
+
+  async function toggleStream() {
+    const next = streamMode === 'live' ? 'manual' : 'live';
+    setToggling(true);
+    setStreamErr(null);
+    try {
+      setStreamMode(await setStreamModeApi(next)); // socket broadcast also syncs peers
+    } catch (e) {
+      setStreamErr(getApiError(e));
+    } finally {
+      setToggling(false);
+    }
+  }
 
   const avg = (fn: (m: MachineReading) => number) =>
     machines.length ? machines.reduce((s, m) => s + fn(m), 0) / machines.length : 0;
@@ -68,6 +95,45 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Live-stream control (admin) */}
+      {canControl && (
+        <Card data-testid="stream-control">
+          <CardBody className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold">Live stream</span>
+              <button
+                data-testid="stream-toggle"
+                data-mode={streamMode}
+                onClick={toggleStream}
+                disabled={toggling}
+                className={cn(
+                  'relative h-6 w-11 rounded-full transition-colors',
+                  streamMode === 'live' ? 'bg-success' : 'bg-muted',
+                )}
+              >
+                <span className={cn('absolute top-0.5 size-5 rounded-full bg-white transition-all', streamMode === 'live' ? 'left-[22px]' : 'left-0.5')} />
+              </button>
+              <span className={cn('text-xs font-medium', streamMode === 'live' ? 'text-success' : 'text-muted-foreground')}>
+                {streamMode === 'live' ? 'ON · simulator running' : 'OFF · manual entry'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {streamErr && <span className="text-xs text-danger">{streamErr}</span>}
+              {streamMode === 'manual' && (
+                <Button size="sm" variant="outline" data-testid="manual-entry-open" onClick={() => setManualOpen(true)}>
+                  <SlidersHorizontal className="size-4" /> Enter reading
+                </Button>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+      )}
+      {streamMode === 'manual' && (
+        <div className="flex items-center gap-2 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning" data-testid="stream-manual-banner">
+          <Radio className="size-4" /> Live simulator is paused — values below reflect manually entered readings.
+        </div>
+      )}
+
       {/* KPI row */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <Kpi icon={Gauge} label="Uptime" value={avg((m) => m.uptime).toFixed(1)} unit="%" />
@@ -166,6 +232,8 @@ export function Dashboard() {
           <Benefit title="Lifetime Extension" body="Condition-based maintenance from vibration/temperature trends forecasts wear before failure." />
         </div>
       </div>
+
+      {manualOpen && <ManualEntryModal onClose={() => setManualOpen(false)} />}
     </div>
   );
 }

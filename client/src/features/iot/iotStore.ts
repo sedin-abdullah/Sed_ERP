@@ -10,11 +10,14 @@ export interface SeriesPoint {
 
 const MAX_POINTS = 30;
 
+export type StreamMode = 'live' | 'manual';
+
 interface IotState {
   machines: MachineReading[];
   series: SeriesPoint[];
   alerts: Alert[];
   commands: MachineCommand[];
+  streamMode: StreamMode;
   applyUpdate: (update: IotUpdate) => void;
   upsertAlert: (alert: Alert) => void;
   resolveAlert: (id: string) => void;
@@ -22,6 +25,7 @@ interface IotState {
   setMachineStatus: (machineId: string, status: MachineStatus) => void;
   setCommands: (commands: MachineCommand[]) => void;
   upsertCommand: (command: MachineCommand) => void;
+  setStreamMode: (mode: StreamMode) => void;
 }
 
 export const useIotStore = create<IotState>((set) => ({
@@ -29,6 +33,7 @@ export const useIotStore = create<IotState>((set) => ({
   series: [],
   alerts: [],
   commands: [],
+  streamMode: 'live',
   applyUpdate: (update) =>
     set((state) => {
       const running = update.machines.filter((m) => m.status === 'running');
@@ -67,4 +72,5 @@ export const useIotStore = create<IotState>((set) => ({
       const rest = state.commands.filter((c) => c.id !== command.id);
       return { commands: [command, ...rest].slice(0, 200) };
     }),
+  setStreamMode: (streamMode) => set({ streamMode }),
 }));

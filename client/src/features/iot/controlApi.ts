@@ -18,3 +18,11 @@ export const sendMachineAlert = (
 
 export const broadcastAlert = (body: { severity: 'info' | 'warning' | 'critical'; message: string }) =>
   api.post(`/iot/alerts/broadcast`, body).then((r) => r.data.data);
+
+// --- Live stream mode + manual reading entry ---
+export const fetchStreamMode = () =>
+  api.get<{ data: { mode: 'live' | 'manual' } }>('/iot/stream').then((r) => r.data.data.mode);
+export const setStreamModeApi = (mode: 'live' | 'manual') =>
+  api.post<{ data: { mode: 'live' | 'manual' } }>('/iot/stream', { mode }).then((r) => r.data.data.mode);
+export const submitReading = (machineId: string, reading: Record<string, number | string>) =>
+  api.post(`/iot/machines/${machineId}/reading`, reading).then((r) => r.data.data);

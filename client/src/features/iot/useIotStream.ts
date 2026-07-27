@@ -16,12 +16,17 @@ export function useIotStream(): void {
   const setAlerts = useIotStore((s) => s.setAlerts);
   const setMachineStatus = useIotStore((s) => s.setMachineStatus);
   const upsertCommand = useIotStore((s) => s.upsertCommand);
+  const setStreamMode = useIotStore((s) => s.setStreamMode);
 
   useEffect(() => {
     let cancelled = false;
     api
       .get<{ data: Alert[] }>('/iot/alerts')
       .then((res) => { if (!cancelled) setAlerts(res.data.data); })
+      .catch(() => undefined);
+    api
+      .get<{ data: { mode: 'live' | 'manual' } }>('/iot/stream')
+      .then((res) => { if (!cancelled) setStreamMode(res.data.data.mode); })
       .catch(() => undefined);
 
     const offUpdate = subscribe<IotUpdate>('iot:update', applyUpdate);
@@ -31,6 +36,7 @@ export function useIotStream(): void {
       setMachineStatus(p.machineId, p.status),
     );
     const offAck = subscribe<MachineCommand>('machine:command-ack', upsertCommand);
+    const offMode = subscribe<{ mode: 'live' | 'manual' }>('stream:mode', (p) => setStreamMode(p.mode));
 
     return () => {
       cancelled = true;
@@ -39,6 +45,7 @@ export function useIotStream(): void {
       offCleared();
       offStatus();
       offAck();
+      offMode();
     };
-  }, [applyUpdate, upsertAlert, resolveAlert, setAlerts, setMachineStatus, upsertCommand]);
+  }, [applyUpdate, upsertAlert, resolveAlert, setAlerts, setMachineStatus, upsertCommand, setStreamMode]);
 }

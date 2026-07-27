@@ -40,6 +40,40 @@ interface Device {
 const devices = new Map<string, Device>();
 let bus: MqttClient | null = null;
 
+// 'live' = simulator auto-generates telemetry; 'manual' = simulator pauses and
+// an admin feeds readings via applyManualReading (which flow through the exact
+// same MQTT telemetry path → alert detection + iot:update).
+type StreamMode = 'live' | 'manual';
+let streamMode: StreamMode = 'live';
+
+export function getStreamMode(): StreamMode {
+  return streamMode;
+}
+export function setStreamMode(mode: StreamMode): void {
+  streamMode = mode;
+}
+
+/** Manually set one machine's reading (admin data entry). Merges the provided
+ *  fields, then publishes telemetry exactly like a device would — so the cloud
+ *  consumer runs alert detection and broadcasts iot:update, replicating the
+ *  value to the dashboard, machines, alerts and reports. */
+export function applyManualReading(
+  machineId: string,
+  patch: Partial<Pick<Device, 'temperature' | 'vibration' | 'throughput' | 'energyUsage' | 'pressure' | 'uptime' | 'oeeScore' | 'status'>>,
+): boolean {
+  const d = devices.get(machineId);
+  if (!d) return false;
+  const prevStatus = d.status;
+  for (const [k, v] of Object.entries(patch)) {
+    if (v === undefined) continue;
+    if (k === 'status') { d.status = v as Device['status']; d.power = d.status === 'off' ? 'off' : 'on'; }
+    else (d as unknown as Record<string, number>)[k] = Number(v);
+  }
+  publishTelemetry(d);
+  if (d.status !== prevStatus) publishStatus(d);
+  return true;
+}
+
 function walk(value: number, step: number, min: number, max: number): number {
   const next = value + (Math.random() * 2 - 1) * step;
   return Math.min(max, Math.max(min, Math.round(next * 10) / 10));
@@ -70,6 +104,7 @@ function publishTelemetry(d: Device): void {
 }
 
 function tick(): void {
+  if (streamMode === 'manual') return; // paused — admin drives readings manually
   for (const d of devices.values()) {
     if (d.power === 'off') continue; // an off machine emits nothing
 

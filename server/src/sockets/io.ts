@@ -21,7 +21,8 @@ export type SyncEvent =
   | 'quote:changed'
   | 'technician:changed'
   | 'job:changed'
-  | 'machine:command-ack';
+  | 'machine:command-ack'
+  | 'stream:mode';
 
 export function initSocket(server: HttpServer): IOServer {
   io = new IOServer(server, {
