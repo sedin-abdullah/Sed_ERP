@@ -28,9 +28,21 @@ router.get('/machines', async (_req, res) => {
 });
 
 // --- Live machine state (REST snapshot for API-based validation) ---
-// All machines' current live reading (temperature, status, OEE, …).
-router.get('/state', (_req, res) => {
-  res.json({ success: true, data: getLatestReadings() });
+// All machines' current live reading; or one machine via ?name=<machine name>
+// (case-insensitive) — handy for automation: GET /iot/state?name=Packer 9
+router.get('/state', (req, res) => {
+  const readings = getLatestReadings();
+  const name = typeof req.query.name === 'string' ? req.query.name.trim().toLowerCase() : '';
+  if (name) {
+    const one = readings.find((r) => r.name.toLowerCase() === name);
+    if (!one) {
+      res.status(404).json({ success: false, message: `No machine named '${req.query.name}'` });
+      return;
+    }
+    res.json({ success: true, data: one });
+    return;
+  }
+  res.json({ success: true, data: readings });
 });
 
 // One machine's current live reading — use this to assert a machine is 'off'

@@ -136,7 +136,7 @@ Legend — **Auth**: 🔓 public · 🔐 JWT required · **Perm**: required perm
 | Method | Path | Auth | Perm | Notes |
 |---|---|---|---|---|
 | GET | `/iot/machines` | 🔐 | — | Machine registry (array) |
-| GET | `/iot/state` | 🔐 | — | **Live reading of every machine** (REST snapshot: temperature, status, OEE, …) |
+| GET | `/iot/state` | 🔐 | — | **Live reading of every machine** (array). Add `?name=<machine name>` to get one machine (single object, case-insensitive), e.g. `/iot/state?name=Packer 9` |
 | GET | `/iot/machines/:id/state` | 🔐 | — | **One machine's live reading** — poll `data.status` to assert `off` after power_off |
 | GET | `/iot/alerts?status=` | 🔐 | — | Alerts; optional `status`=`active`\|`ack`\|`resolved` (latest 100) |
 | PATCH | `/iot/alerts/:id` | 🔐 | — | Body `{ status }` — acknowledge/resolve an alert |
