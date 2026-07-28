@@ -7,7 +7,7 @@ import { Permission } from '../models/User';
 import { protect } from '../middleware/auth';
 import { broadcast } from '../sockets/io';
 import { uuid } from '../mqtt/bus';
-import { publishBroadcastAlert, publishCommand, publishTargetedAlert, setThreshold } from '../mqtt/cloud';
+import { getLatestReading, getLatestReadings, publishBroadcastAlert, publishCommand, publishTargetedAlert, setThreshold } from '../mqtt/cloud';
 import type { CommandName } from '../mqtt/topics';
 import { applyManualReading, getStreamMode, setStreamMode } from '../simulator/iot';
 
@@ -25,6 +25,23 @@ function hasPerm(req: Request, ...perms: Permission[]): boolean {
 router.get('/machines', async (_req, res) => {
   const machines = await Machine.find().sort({ createdAt: 1 });
   res.json({ success: true, data: machines });
+});
+
+// --- Live machine state (REST snapshot for API-based validation) ---
+// All machines' current live reading (temperature, status, OEE, …).
+router.get('/state', (_req, res) => {
+  res.json({ success: true, data: getLatestReadings() });
+});
+
+// One machine's current live reading — use this to assert a machine is 'off'
+// after a power_off command (poll until data.status === 'off').
+router.get('/machines/:id/state', (req, res) => {
+  const reading = getLatestReading(req.params.id);
+  if (!reading) {
+    res.status(404).json({ success: false, message: 'No live reading for this machine yet' });
+    return;
+  }
+  res.json({ success: true, data: reading });
 });
 
 // --- Alerts ---

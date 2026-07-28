@@ -32,6 +32,15 @@ export function setThreshold(id: string, key: string, value: number): void {
   if (key === 'maxVibration') t.maxVibration = value;
 }
 
+/** Current live reading for every machine (latest telemetry/status snapshot). */
+export function getLatestReadings(): TelemetryMessage[] {
+  return [...latest.values()];
+}
+/** Current live reading for one machine, or undefined if none seen yet. */
+export function getLatestReading(machineId: string): TelemetryMessage | undefined {
+  return latest.get(machineId);
+}
+
 async function openAlert(machineId: string, machineName: string, metric: string, severity: 'warning' | 'critical', message: string) {
   const key = `${machineId}:${metric}`;
   if (activeAlerts.has(key)) return;
