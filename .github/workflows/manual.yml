@@ -14,7 +14,7 @@ jobs:
         with:
           api_key: a63bf49e-8edd-42f3-8a44-592403467d1f
           project_id: 1078
-test_id: 9980
+          test_id: 9980
           profile_id: 2117
           browser: chrome
           headless: false
