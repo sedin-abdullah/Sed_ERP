@@ -1,0 +1,20 @@
+name: Regression suite for SedEducation
+ 
+on:
+  push:
+    branches:
+      - main
+ 
+jobs:
+  sedstart-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger SedStart suite run
+        uses: sedstart/runcloud@v1
+        with:
+          api_key: a63bf49e-8edd-42f3-8a44-592403467d1f
+          project_id: 1078
+test_id: 9980
+          profile_id: 2117
+          browser: chrome
+          headless: false
